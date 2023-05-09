@@ -109,5 +109,29 @@ function isUrl(...urls) {
         </div>
       </Link>
     </div>
+    <div class="mb-4">
+      <Link class="group flex items-center py-3" href="/permissions">
+        <icon
+          name="users"
+          class="mr-2 w-4 h-4"
+          :class="isUrl('permissions') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'"
+        />
+        <div :class="isUrl('permissions') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">
+          Permissions
+        </div>
+      </Link>
+    </div>
+    <div class="mb-4">
+      <Link class="group flex items-center py-3" href="/chat">
+        <icon
+          name="users"
+          class="mr-2 w-4 h-4"
+          :class="isUrl('chat') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'"
+        />
+        <div :class="isUrl('chat') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">
+          Chatroom
+        </div>
+      </Link>
+    </div>
   </div>
 </template>

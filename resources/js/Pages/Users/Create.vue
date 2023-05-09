@@ -6,9 +6,14 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+defineProps({
+    roles: Array
+})
+
 const form = useForm({
     name: '',
     email: '',
+    role: '',
     password: '',
     password_confirmation: '',
     terms: false,
@@ -60,6 +65,19 @@ const submit = () => {
                             required
                             autocomplete="username"
                         />
+
+                        <InputError class="mt-2" :message="form.errors.email" />
+                    </div>
+
+                    <div class="mt-4">
+                        <InputLabel for="role" value="Role" />
+
+                        <select
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                            v-model="form.role"
+                        >
+                            <option v-for="role in roles" :value="role.name">{{ role.name }}</option>
+                        </select>
 
                         <InputError class="mt-2" :message="form.errors.email" />
                     </div>

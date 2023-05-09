@@ -12,6 +12,8 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 // use Illuminate\Http\Request;
 
@@ -21,18 +23,19 @@ class UserController extends Controller
     {
         return Inertia::render('Users/Index', [
             'filters' => Request::all('search', 'role', 'trashed'),
-            'users' => User::all()
+            'users' => User::with('roles')->get()
         ]);
     }
 
     public function create(){
-        return Inertia::render('Users/Create');
+        return Inertia::render('Users/Create', ['roles' => Role::all()]);
     }
 
     public function store(){
         Request::validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:'.User::class,
+            'role' => 'required',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -42,12 +45,16 @@ class UserController extends Controller
             'password' => Hash::make(Request::get('password')),
         ]);
 
+        $user->syncRoles([Request::only('role')]);
+
         return Redirect::route('users')->with('success', 'User created.');
     }
 
     public function edit(User $user){
         return Inertia::render('Users/Edit', [
-            'user' => $user
+            'user' => $user,
+            'role' => $user->roles[0]->name,
+            'roles' => Role::all()
         ]);
     }
 
@@ -60,6 +67,10 @@ class UserController extends Controller
         ]);
 
         $user->update(Request::only('name', 'email'));
+
+        if(Request::get('role')) {
+            $user->syncRoles([Request::only('role')]);
+        }
 
         if (Request::get('password')) {
             $user->update(['password' => Hash::make(Request::get('password'))]);

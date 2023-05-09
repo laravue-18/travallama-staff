@@ -46,7 +46,7 @@ const props = defineProps({
                     </td>
                     <td class="border-t">
                         <Link class="flex items-center px-6 py-4" :href="`/users/${user.id}/edit`" tabindex="-1">
-                            {{ user.owner ? 'Owner' : 'User' }}
+                            {{ user.roles[0].name }}
                         </Link>
                     </td>
                     <td class="w-px border-t">

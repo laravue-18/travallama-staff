@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,10 +52,16 @@ Route::middleware('auth')->group(function () {
     Route::get('earnings', [UserController::class, 'index'])->name('earnings');
     
     Route::get('analytics', [UserController::class, 'index'])->name('analytics');
+    
+    Route::get('permissions', [PermissionController::class, 'index'])->name('permissions');
+    Route::post('roles', [PermissionController::class, 'storeRole'])->name('roles.store');
+    Route::post('permissions', [PermissionController::class, 'store'])->name('permissions.store');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('chat', [MessageController::class, 'index'])->name('chat');
 });
 
 require __DIR__.'/auth.php';
