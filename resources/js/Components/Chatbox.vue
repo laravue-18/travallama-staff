@@ -20,23 +20,12 @@ register()
 // const userId = Math.random().toString(36).slice(-5)
 // const roomId = Math.random().toString(36).slice(-5)
 const userId = 'support'
-const roomId = 'room'
 
 export default {
 	data() {
 		return {
 			currentUserId: userId,
-			rooms: [
-				{
-					roomId: roomId,
-					roomName: 'Support',
-					avatar: 'https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj',
-					users: [
-						{ _id: userId, username: 'John Doe' },
-						{ _id: 'user', username: 'John Snow' }
-					]
-				}
-			],
+			rooms: [],
 			messages: [],
 			messagesLoaded: false
 		}
