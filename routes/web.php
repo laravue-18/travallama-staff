@@ -43,7 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    Route::get('visitors', [QuoteController::class, 'visitorIndex'])->name('visitors');
+    Route::get('quotes', [QuoteController::class, 'indexQuotes'])->name('quotes.index');
+    Route::get('quotes/{id}', [QuoteController::class, 'showQuotes'])->name('quotes.show');
 
     Route::get('leads', [QuoteController::class, 'leadIndex'])->name('leads');
 
