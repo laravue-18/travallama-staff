@@ -70,9 +70,9 @@ defineProps({
             <div class="my-4">
                 <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Quote</h1>
                 <div class="grid grid-cols-4 gap-4">
-                    <div>{{ row.quote ? row.quote.product1.name : '' }}</div>
-                    <div>{{ row.quote ? row.quote.product2.name : '' }}</div>
-                    <div>{{ row.quote ? row.quote.product3.name : '' }}</div>
+                    <div>{{ row.quote ? (row.quote.product1 ? row.quote.product1.name : '') : '' }}</div>
+                    <div>{{ row.quote ? (row.quote.product2 ? row.quote.product2.name : '') : '' }}</div>
+                    <div>{{ row.quote ? (row.quote.product3 ? row.quote.product3.name : '') : '' }}</div>
                     <div>
                         <button class="bg-indigo-500 text-white px-4 py-1 rounded-full">View All Products</button>
                     </div>
