@@ -1,5 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+
+defineProps({
+    row: Object,
+});
 </script>
 
 <template>
@@ -9,11 +13,77 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
         <h1 class="mb-8 text-3xl font-bold">Quotes</h1>
 
         <div class="grid grid-cols-4 gap-4">
-            <div><span class="font-bold"> Quote ID : </span> 12359879</div>
-            <div><span class="font-bold"> Q-Type : </span> 12359879</div>
+            <div><span class="font-bold"> Quote ID : </span> {{ row.quote ? row.quote.id : ''}}</div>
+            <div><span class="font-bold"> Q-Type : </span> {{ row.quote ? row.quote.q_type : ''}}</div>
             <div><span class="font-bold"> Status : </span> Active</div>
-            <div><span class="font-bold"> User Type : </span> Visitor</div>
+            <div><span class="font-bold"> User Type : </span> {{ row.order ? 'Customer' : ( row.quote ? (row.quote.email ? 'Lead' : 'Visitor') : 'Visitor') }}</div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-4">
+            <div><span class="font-bold"> Email : </span> {{ row.quote ? row.quote.email : ''}}</div>
+            <div><span class="font-bold"> Phone : </span> {{ row.quote ? row.quote.phone : ''}}</div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-4">
+            <div><span class="font-bold"> First Name : </span> {{ row.order ? row.order.f_name : ''}}</div>
+            <div><span class="font-bold"> Last Name : </span> {{ row.order ? row.order.l_name : ''}}</div>
+            <div><span class="font-bold"> Age : </span> {{ row.order ? row.order.age : ''}}</div>
+            <div><span class="font-bold"> DOB : </span> {{ row.order ? row.order.birthday : ''}}</div>
         </div>
 
+        <div class="divide-y">
+            <div class="my-4">
+                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 1</h1>
+                <div class="grid grid-cols-4 gap-4">
+                    <div><span class="font-bold"> Destination : </span> {{ row.quote ? row.quote.destination : ''}}</div>
+                    <div><span class="font-bold"> Leave Date : </span> {{ row.quote ? row.quote.from : ''}}</div>
+                    <div><span class="font-bold"> Return Date : </span> {{ row.quote ? row.quote.to : ''}}</div>
+                    <div><span class="font-bold"> Trip Duration : </span> 
+                        {{ row.quote && row.quote.to && row.quote.from ? 
+                            Math.ceil((new Date(row.quote.to).getTime() - new Date(row.quote.from).getTime()) / (1000 * 3600 * 24)) : ''}}</div>
+                </div>
+            </div>
+            <div class="my-4">
+                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 2</h1>
+                <div class="grid grid-cols-4 gap-4">
+                    <div><span class="font-bold"> Residence : </span> {{ row.quote ? row.quote.country : ''}}</div>
+                    <div><span class="font-bold"> Citizenship : </span> {{ row.quote ? row.quote.citizenship : ''}}</div>
+                    <div><span class="font-bold"> Travelers : </span> {{ row.quote ? (row.quote.ages ? JSON.parse(row.quote.ages).length : '') : '' }}</div>
+                    <div><span class="font-bold"> Ages : </span> 
+                        {{ row.quote ? row.quote.ages : '' }}
+                    </div>
+                    <div><span class="font-bold"> Zipcode : </span> 
+                        {{ row.quote ? row.quote.zipcode : '' }}
+                    </div>
+                </div>
+            </div>
+            <div class="my-4">
+                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 3</h1>
+                <div class="grid grid-cols-4 gap-4">
+                    <div><span class="font-bold"> Coverage Type : </span> {{ row.quote ? row.quote.coverage_type : ''}}</div>
+                    <div><span class="font-bold"> CFAR : </span> {{ row.quote ? ['No', 'Yes'][row.quote.cfar] : ''}}</div>
+                    <div><span class="font-bold"> Trip Cost : </span> {{ row.quote ? row.quote.trip_cost : ''}}</div>
+                    <div><span class="font-bold"> First Payment : </span> {{ row.quote ? row.quote.first_payment : ''}}</div>
+                    <div><span class="font-bold"> Remaining Payments : </span> {{ row.quote ? ['No', 'Yes'][row.quote.remaining_payment] : ''}}</div>
+                </div>
+            </div>
+            <div class="my-4">
+                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Quote</h1>
+                <div class="grid grid-cols-4 gap-4">
+                    <div>{{ row.quote ? row.quote.product1.name : '' }}</div>
+                    <div>{{ row.quote ? row.quote.product2.name : '' }}</div>
+                    <div>{{ row.quote ? row.quote.product3.name : '' }}</div>
+                    <div>
+                        <button class="bg-indigo-500 text-white px-4 py-1 rounded-full">View All Products</button>
+                    </div>
+                </div>
+            </div>
+            <div class="my-4">
+                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Checkout</h1>
+                <div class="grid grid-cols-4 gap-4">
+                    
+                </div>
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>

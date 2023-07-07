@@ -151,45 +151,55 @@
 
         <Vable :columns="columns" :data="rows.data" border
             @on-sort-change="onSortableChange"
+            @on-filter-change="onFilterChange"
         >
             <template #date="{ row, index }">
-                <span>
-                    {{ row.created_at }}
-                    {{ (new Date(row.created_at)).getFullYear() }}-{{ (new Date(row.created_at)).getMonth() }}-{{ (new Date(row.created_at)).getDate() }}
-                </span>
+                {{ (new Date(row.created_at)).getFullYear() }}-{{ (new Date(row.created_at)).getMonth() + 1 }}-{{ (new Date(row.created_at)).getDate() }}
             </template>
             <template #timestamp="{ row, index }">
-                <span>
-                    {{ (new Date(row.created_at)).getHours() }}:{{ (new Date(row.created_at)).getMinutes() }}
-                </span>
+                {{ (new Date(row.created_at)).getHours() }}:{{ (new Date(row.created_at)).getMinutes() }}
             </template>
             <template #q_user="{ row, index }">
-                <span>
-                    {{ row.price ? 'Customer' : ( row.email ? 'Lead' : 'Visitor') }}
-                </span>
+                {{ row.order ? 'Customer' : ( row.quote ? (row.quote.email ? 'Lead' : 'Visitor') : 'Visitor') }}
+            </template>
+            <template #quote_id="{ row, index }">
+                {{ row.quote ? row.quote.id : '' }}
+            </template>
+            <template #q_type="{ row, index }">
+                {{ row.quote ? row.quote.qtype : '' }}
+            </template>
+            <template #destination="{ row, index }">
+                {{ row.quote ? row.quote.destination : '' }}
+            </template>
+            <template #from="{ row, index }">
+                {{ row.quote ? row.quote.from : '' }}
+            </template>
+            <template #to="{ row, index }">
+                {{ row.quote ? row.quote.to : '' }}
             </template>
             <template #travelers="{ row, index }">
-                <span>
-                    {{ row.ages ? JSON.parse(row.ages).length : '' }}
-                </span>
+                {{ row.quote ? (row.quote.ages ? JSON.parse(row.quote.ages).length : '') : '' }}
+            </template>
+            <template #coverage_type="{ row, index }">
+                {{ row.quote ? row.quote.coverage_type : '' }}
             </template>
             <template #selected="{ row, index }">
-                <span>
-                    Product Name
-                </span>
+                {{ row.order ? row.order.product.name : '' }}
+            </template>
+            <template #residence="{ row, index }">
+                {{ row.order ? row.order.country : '' }}
             </template>
             <template #success="{ row, index }">
-                <span>
-                    Lead
-                </span>
+                {{ row.order ? 'Purchase' : (row.quote ? ( row.quote.email ? 'Lead' : 'Exit') : 'Exit') }}
+            </template>
+            <template #exit_page="{ row, index }">
+                {{ row.quote ? row.quote.exit_page : '' }}
             </template>
             <template #status="{ row, index }">
-                <span>
-                    Active
-                </span>
+                Active
             </template>
             <template #action="{ row, index }">
-                <Link :href="route('quotes.show', 40)"><button class="text-white bg-indigo-500 px-3 py-1 rounded">View</button></Link>
+                <Link :href="route('quotes.show', row.id)"><button class="text-white bg-indigo-500 px-3 py-1 rounded">View</button></Link>
             </template>
         </Vable>
 
@@ -212,8 +222,6 @@ import SelectInput from '@/Shared/SelectInput.vue'
 import Vable from '@/Components/src/components/table/table.vue'
 import draggable from 'vuedraggable'
 
-
-
 export default {
   components: {
     AuthenticatedLayout,
@@ -234,11 +242,24 @@ export default {
   data() {
     return {
         columns: [
-            {title: 'Date', slot: 'date', width: 200, resizable: true, sortable: true},
-            {title: 'Timestamp', slot: 'timestamp', width: 200, resizable: true, sortable: true},
-            {title: 'OS', key: 'device', width: 200, resizable: true, sortable: true},
+            {title: 'Date', slot: 'date', width: 200, resizable: true, sortable: 'custom', sortType: this.filters.date_sort},
+            {title: 'Timestamp', slot: 'timestamp', width: 200, resizable: true},
+            {title: 'OS', key: 'device', width: 200, resizable: true,
+                filters: [
+                        {
+                            label: 'Web',
+                            value: 'web'
+                        },
+                        {
+                            label: 'Mobile',
+                            value: 'mobile'
+                        },
+                    ],
+                [this.filters.device_filter ? 'filteredValue' : '']: this.filters.device_filter,
+                filterRemote(){}
+            },
             {
-                title: 'Q-User', slot: 'q_user', width: 200, resizable: true, sortable: true,
+                title: 'Q-User', slot: 'q_user', width: 200, resizable: true, sortable: 'custom',
                 filters: [
                     {
                         label: 'Customer',
@@ -253,24 +274,42 @@ export default {
                         value: 'Visitor'
                     },
                 ],
+                [this.filters.q_user_filter ? 'filteredValue' : '']: this.filters.q_user_filter,
+                filterRemote () {}
+            },
+            {title: 'Quote ID', slot: 'quote_id', width: 200, resizable: true, sortable: 'custom' },
+            {title: 'Q-type', slot: 'q_type', width: 200, resizable: true, sortable: 'custom',
+                filters: [
+                    {
+                        label: 'Individual',
+                        value: 'individual'
+                    },
+                    {
+                        label: 'Family',
+                        value: 'family'
+                    },
+                    {
+                        label: 'Multi Family',
+                        value: 'multi-family'
+                    },
+                ],
                 filterMethod (value, row) {
                     const val = row.price ? 'Customer' : ( row.email ? 'Lead' : 'Visitor')
                     return val.indexOf(value) > -1;
                 }
+        
             },
-            {title: 'Quote ID', key: 'visitor_id', width: 200, resizable: true, sortable: true},
-            {title: 'Q-type', key: 'qtype', width: 200, resizable: true, sortable: true},
-            {title: 'Destination', key: 'destination', width: 200, resizable: true, sortable: true},
-            {title: 'Leave', key: 'from', width: 200, resizable: true, sortable: true},
-            {title: 'Return', key: 'to', width: 200, resizable: true, sortable: true},
-            {title: 'Travelers', slot: 'travelers', width: 200, resizable: true, sortable: true},
-            {title: 'Coverage Type', key: 'coverage_type', width: 200, resizable: true, sortable: true},
-            {title: 'Selected', slot: 'selected', width: 200, resizable: true, sortable: true},
-            {title: 'Residence', key: 'product_id', width: 200, resizable: true, sortable: true},
-            {title: 'Success', slot: 'success', width: 200, resizable: true, sortable: true},
-            {title: 'Exit Page', key: 'exit_page', width: 200, resizable: true, sortable: true},
-            {title: 'Status', slot: 'status', width: 200, resizable: true, sortable: true},
-            {title: 'View Details', slot: 'action', fixed: 'right', align: 'center', width: 200, resizable: true, sortable: true},
+            {title: 'Destination', slot: 'destination', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Leave', slot: 'from', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Return', slot: 'to', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Travelers', slot: 'travelers', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Coverage Type', slot: 'coverage_type', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Selected', slot: 'selected', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Residence', slot: 'residence', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Success', slot: 'success', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Exit Page', slot: 'exit_page', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'Status', slot: 'status', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'View Details', slot: 'action', fixed: 'right', align: 'center', width: 200, resizable: true, sortable: 'custom'},
         ],
         form: {
             search: this.filters.search,
@@ -291,7 +330,18 @@ export default {
       this.form = mapValues(this.form, () => null)
     },
     onSortableChange(col){
-        
+        if(col.order == 'asc' || col.order == 'desc') {
+            this.form[(col.column.key ? col.column.key : col.column.slot) + '_sort'] = col.order
+        } else {
+            this.form[(col.column.key ? col.column.key : col.column.slot) + '_sort'] = null
+        }
+    },
+    onFilterChange(val) {
+        if(val._filterChecked.length){
+            this.form[(val.key ? val.key : val.slot) + '_filter'] = val._filterChecked
+        }else{
+            this.form[(val.key ? val.key : val.slot) + '_filter'] = null
+        }
     }
   },
 }
