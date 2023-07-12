@@ -296,7 +296,7 @@ class QuoteController extends Controller
                         } 
         
                     }else if($type == 'vacation_rental'){
-                        $price = $form['totalTripCost'] * 7 / 100;
+                        $price = $tripCost * 7 / 100;
                     }else if($rate_type == 'annual'){
                         $rate = TrawickAnnualRate::where('trawick_product_id', $trawick_product_id)->first();
                         if($rate) $price = $rate->rate;
