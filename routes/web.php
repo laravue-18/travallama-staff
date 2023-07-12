@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('quotes', [QuoteController::class, 'indexQuotes'])->name('quotes.index');
+    Route::get('quotes/create', [QuoteController::class, 'createQuotes'])->name('quotes.create');
+    Route::post('quotes', [QuoteController::class, 'store'])->name('quotes.store');
     Route::get('quotes/{id}', [QuoteController::class, 'showQuotes'])->name('quotes.show');
 
     Route::get('leads', [QuoteController::class, 'leadIndex'])->name('leads');

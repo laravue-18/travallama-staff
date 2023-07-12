@@ -1,13 +1,39 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import {ref} from 'vue'
 
-defineProps({
+const props = defineProps({
     row: Object,
 });
+
+const productsModal = ref(false)
+
+const viewAllProducts = () => {
+    productsModal.value = true
+    axios.post(route('quotes.store'), {quote_id: props.row.quote.id})
+        .then(res => res.data)
+        .then(data => {
+            products.value.products = Object.values(data)
+            console.log(products)
+        })
+}
+
+const products = ref({ products: [] })
+
+const columns = [
+    {title: 'Company Name', slot: 'company_name'},
+    {title: 'Product Name', key: 'name'},
+    {title: 'Score', slot: 'score'},
+    {title: 'Price', key: 'price'},
+    {title: 'Cancellation', slot: 'cancellation'},
+    {title: 'Medical', slot: 'medical'},
+    {title: 'Pre-existing', slot: 'pre_existing'},
+    {title: 'CFAR', slot: 'cfar'},
+]
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <!-- <Head title="Dashboard" /> -->
 
     <AuthenticatedLayout>
         <h1 class="mb-8 text-3xl font-bold">Quotes</h1>
@@ -74,7 +100,7 @@ defineProps({
                     <div>{{ row.quote ? (row.quote.product2 ? row.quote.product2.name : '') : '' }}</div>
                     <div>{{ row.quote ? (row.quote.product3 ? row.quote.product3.name : '') : '' }}</div>
                     <div>
-                        <button class="bg-indigo-500 text-white px-4 py-1 rounded-full">View All Products</button>
+                        <button class="bg-indigo-500 text-white px-4 py-1 rounded-full" @click="viewAllProducts">View All Products</button>
                     </div>
                 </div>
             </div>
@@ -85,5 +111,30 @@ defineProps({
                 </div>
             </div>
         </div>
+        <Modal
+            v-model="productsModal"
+            :width="'80%'"
+        >
+            <Table :columns="columns" :data="products.products">
+                <template #company_name="{row, index}">
+                    {{ row.provider.name }}
+                </template>
+                <template #score="{row, index}">
+                    300
+                </template>
+                <template #cancellation="{row, index}">
+                    test
+                </template>
+                <template #medical="{row, index}">
+                    test
+                </template>
+                <template #pre_existing="{row, index}">
+                test
+                </template>
+                <template #cfar="{row, index}">
+                    test
+                </template>
+            </Table>
+        </Modal>
     </AuthenticatedLayout>
 </template>
