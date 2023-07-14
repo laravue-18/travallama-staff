@@ -18,6 +18,8 @@ const viewAllProducts = () => {
         })
 }
 
+const saveQuotes = ref(false)
+
 const products = ref({ products: [] })
 
 const columns = [
@@ -29,6 +31,9 @@ const columns = [
     {title: 'Medical', slot: 'medical'},
     {title: 'Pre-existing', slot: 'pre_existing'},
     {title: 'CFAR', slot: 'cfar'},
+    {title: 'Select', slot: 'select'},
+    {title: 'Checkout', slot: 'checkout'},
+    {title: 'Checkout Link', slot: 'link'},
 ]
 </script>
 
@@ -111,10 +116,58 @@ const columns = [
                 </div>
             </div>
         </div>
-        <Modal
+        <Drawer
+            title="All Products"
             v-model="productsModal"
+            :closable="false"
             :width="'80%'"
         >
+            <Collapse class="mb-8">
+                <Panel>
+                    Quote Form
+                    <template #content>
+                        <div class="my-4">
+                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 1</h1>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div><span class="font-bold"> Destination : </span> {{ row.quote ? row.quote.destination : ''}}</div>
+                                <div><span class="font-bold"> Leave Date : </span> {{ row.quote ? row.quote.from : ''}}</div>
+                                <div><span class="font-bold"> Return Date : </span> {{ row.quote ? row.quote.to : ''}}</div>
+                                <div><span class="font-bold"> Trip Duration : </span> 
+                                    {{ row.quote && row.quote.to && row.quote.from ? 
+                                        Math.ceil((new Date(row.quote.to).getTime() - new Date(row.quote.from).getTime()) / (1000 * 3600 * 24)) : ''}}</div>
+                            </div>
+                        </div>
+                        <div class="my-4">
+                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 2</h1>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div><span class="font-bold"> Residence : </span> {{ row.quote ? row.quote.country : ''}}</div>
+                                <div><span class="font-bold"> Citizenship : </span> {{ row.quote ? row.quote.citizenship : ''}}</div>
+                                <div><span class="font-bold"> Travelers : </span> {{ row.quote ? (row.quote.ages ? JSON.parse(row.quote.ages).length : '') : '' }}</div>
+                                <div><span class="font-bold"> Ages : </span> 
+                                    {{ row.quote ? row.quote.ages : '' }}
+                                </div>
+                                <div><span class="font-bold"> Zipcode : </span> 
+                                    {{ row.quote ? row.quote.zipcode : '' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-4">
+                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 3</h1>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div><span class="font-bold"> Coverage Type : </span> {{ row.quote ? row.quote.coverage_type : ''}}</div>
+                                <div><span class="font-bold"> CFAR : </span> {{ row.quote ? ['No', 'Yes'][row.quote.cfar] : ''}}</div>
+                                <div><span class="font-bold"> Trip Cost : </span> {{ row.quote ? row.quote.trip_cost : ''}}</div>
+                                <div><span class="font-bold"> First Payment : </span> {{ row.quote ? row.quote.first_payment : ''}}</div>
+                                <div><span class="font-bold"> Remaining Payments : </span> {{ row.quote ? ['No', 'Yes'][row.quote.remaining_payment] : ''}}</div>
+                            </div>
+                        </div>
+                        <div class="my-4 flex justify-between">
+                            <Checkbox v-model="saveQuotes">Save Quotes</Checkbox>
+                            <Button type="primary">Submit</Button>
+                        </div>
+                    </template>
+                </Panel>
+            </Collapse>
             <Table :columns="columns" :data="products.products">
                 <template #company_name="{row, index}">
                     {{ row.provider.name }}
@@ -123,18 +176,27 @@ const columns = [
                     300
                 </template>
                 <template #cancellation="{row, index}">
-                    test
                 </template>
                 <template #medical="{row, index}">
-                    test
                 </template>
                 <template #pre_existing="{row, index}">
-                test
                 </template>
                 <template #cfar="{row, index}">
-                    test
+                </template>
+                <template #select="{row, index}">
+                    <Select>
+                        <Option value="1">Basic</Option>
+                        <Option value="2">Best</Option>
+                        <Option value="3">Premium</Option>
+                    </Select>
+                </template>
+                <template #checkout="{row, index}">
+                    <Button type="primary">Checkout</Button>
+                </template>
+                <template #link="{row, index}">
+                    <a :href="row.link" target="_blank">View</a>
                 </template>
             </Table>
-        </Modal>
+        </Drawer>
     </AuthenticatedLayout>
 </template>

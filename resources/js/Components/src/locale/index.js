@@ -1,4 +1,4 @@
-import zhLang from './lang/zh-CN';
+import zhLang from './lang/en-US';
 import deepmerge from 'deepmerge';
 import Format from './format';
 
