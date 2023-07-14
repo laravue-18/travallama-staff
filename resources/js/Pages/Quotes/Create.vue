@@ -47,7 +47,7 @@ watchEffect(() => {
 });
 
 const submit = (e) => {
-  axios.post(route('quotes.store'), {...form})
+  axios.post(route('quotes.test'), {...form})
     .then(res => res.data)
     .then(data => {
         products.value.products = Object.values(data)
@@ -63,7 +63,7 @@ const columns = [
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="New Quote" />
 
     <AuthenticatedLayout>
         <h1 class="mb-8 text-3xl font-bold">New Quote</h1>

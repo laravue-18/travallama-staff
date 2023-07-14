@@ -8,7 +8,6 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import ViewUIPlus from 'view-ui-plus'
 import locale from 'view-ui-plus/dist/locale/en-US';
-console.log(locale)
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -19,7 +18,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue, Ziggy)
-            .use(ViewUIPlus, { locale: 'en-US' })
+            .use(ViewUIPlus, { locale })
             .mount(el);
     },
     progress: {

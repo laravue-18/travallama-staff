@@ -213,6 +213,76 @@ class QuoteController extends Controller
 
         return response()->json($products);
     }
+    
+    public function test(Request $request){
+        $products = Product::where([
+            'status' => true,
+        ])->get();
+        
+        $products = $products->filter(function ($product) use($request){
+            $detail = $product->detail;
+            if(!$product->provider->status) return false;
+            switch($product->provider->slug){
+                case 'img':
+                    $states = json_decode($detail->states);
+                    if($detail->type == 'trip'){
+                        if($detail->states_flag){
+                            return in_array($request['state'], $states);
+                        }else{
+                            return !in_array($request['state'], $states);
+                        }
+                    }else{
+                        if($product->country_type == 'inbound'){
+                            return $request['destination'][0] == 'US';
+                        }else{
+                            return $request['destination'][0] != 'US';
+                        }
+                    }
+                    break;
+                case 'trawick':
+                    if($product['type'] == 'basic'){
+                        if($detail['country_type'] == 'inbound' && $request['destination'][0] == 'US' && $request['country'] != 'US') 
+                            return true;
+                        else if($detail['country_type'] == 'international' && $request['destination'][0] != 'US' && ($request['country'] != 'US') && ($request['country'] != $request['destination']))
+                                return true;
+                        else if($detail['country_type'] == 'outbound' && $request['country'] == 'US' && $request['country'] != $request['destination'])
+                            return true;
+                        else
+                            return false;
+                    }else if($detail['type'] == 'trip' && $request['country'] == 'US'){
+                        return true;
+                    }else if($detail['type'] == 'vacation_rental' && $request['country'] == 'US'){
+                        return true;
+                    }else{
+                        return false;
+                    }
+
+                    break;
+                case 'travel_insured':
+                    if($request['country'] == 'US') return true;
+                    return false;
+                    break;
+                case 'geo_blue':
+                    return true;
+                    break;
+                case 'travel_safe':
+                    return true;
+                    break;
+                case 'go_ready':
+                    return true;
+                    break;
+                default:
+                    return true;
+            }
+        });
+
+        $products = $products->map(function ($product) use($request){
+            $product['price'] = $this->calPrice($product, $request);
+            return $product;
+        });
+
+        return response()->json($products);
+    }
 
     public function calPrice($product, $form) {
         $travelers = $form['travelers'];
@@ -225,8 +295,8 @@ class QuoteController extends Controller
         $price = 0;
 
         foreach ($travelers as $traveler) {
-            $age = $traveler->age;
-            $tripCost = $traveler->tripcost;
+            $age = $traveler['age'];
+            $tripCost = $traveler['tripCost'];
 
             switch($product->provider->slug){
                 case 'trawick':
@@ -239,26 +309,26 @@ class QuoteController extends Controller
                             ['age_min', '<', $age ],
                             ['age_max', '>', $age ],
                         ];
-                        if(array_key_exists('policy_max', $form)) $where[] = ['policy_max', '=', $form['policy_max']];
-                        if(array_key_exists('deductible', $form)) $where[] = ['deductible', '=', $form['deductible']];
+                        // if(array_key_exists('policy_max', $form)) $where[] = ['policy_max', '=', $form['policy_max']];
+                        // if(array_key_exists('deductible', $form)) $where[] = ['deductible', '=', $form['deductible']];
                         $row = TrawickDailyRate::where($where)->first();
     
                         $daily_rate = $row ? $row->daily_rate : 0;
                         $daily_rate_rate = 1;
     
-                        if(array_key_exists('trip_delay', $form)){
-                            $price += [2000 => 0, 4000 => 8.50, 7000 => 14.00][$form['trip_delay']];
-                        }
-                        if(array_key_exists('add', $form)){
-                            $price += [25000 => 0, 50000 => 0.25, 100000 => 0.50, 250000 => 1.75, 500000 => 4.00][$form['add']] * $days;
-                        }
-                        if(array_key_exists('home_country', $form)){
-                            if($form['home_country']) $daily_rate_rate += 0.10;
-                        }
-                        if(array_key_exists('sports', $form)){
-                            if($form['sports'] != 'no') $daily_rate_rate += 0.20;
-                            if($form['sports'] == 'class2') $price += 26 * $months;
-                        }
+                        // if(array_key_exists('trip_delay', $form)){
+                        //     $price += [2000 => 0, 4000 => 8.50, 7000 => 14.00][$form['trip_delay']];
+                        // }
+                        // if(array_key_exists('add', $form)){
+                        //     $price += [25000 => 0, 50000 => 0.25, 100000 => 0.50, 250000 => 1.75, 500000 => 4.00][$form['add']] * $days;
+                        // }
+                        // if(array_key_exists('home_country', $form)){
+                        //     if($form['home_country']) $daily_rate_rate += 0.10;
+                        // }
+                        // if(array_key_exists('sports', $form)){
+                        //     if($form['sports'] != 'no') $daily_rate_rate += 0.20;
+                        //     if($form['sports'] == 'class2') $price += 26 * $months;
+                        // }
                         $price += $daily_rate * $daily_rate_rate * $days;
                     }else if($type == 'trip' && $rate_type == 'trip_a'){
                         $row = TrawickTripcostRate::where([
@@ -392,8 +462,8 @@ class QuoteController extends Controller
                             ['age_min', '<', $age ],
                             ['age_max', '>', $age ],
                         ];
-                        if(array_key_exists('policy_max', $form)) $where[] = ['policy_max', '=', $form['policy_max']];
-                        if(array_key_exists('deductible', $form)) $where[] = ['deductible', '=', $form['deductible']];
+                        // if(array_key_exists('policy_max', $form)) $where[] = ['policy_max', '=', $form['policy_max']];
+                        // if(array_key_exists('deductible', $form)) $where[] = ['deductible', '=', $form['deductible']];
                         $row = ImgMedicalBaseRate::where($where)->first();
     
                         if($row){
@@ -407,24 +477,24 @@ class QuoteController extends Controller
                         }
 
                         // Add Device Protection Rider +$3.54 per person
-                        if(array_key_exists('DeviceProtection', $form)) {
-                            if($form['DeviceProtection'] == 'yes') 
-                                $price += 3.54;  // 16, 17
-                        }
+                        // if(array_key_exists('DeviceProtection', $form)) {
+                        //     if($form['DeviceProtection'] == 'yes') 
+                        //         $price += 3.54;  // 16, 17
+                        // }
 
                         // Add Adventure Sports Rider  +$2.43
-                        if(array_key_exists('AdventureSportsRider', $form)) {
-                            if($form['AdventureSportsRider'] == 'yes') {
-                                switch($img_product_id){
-                                    case 16:
-                                        $price += 2.43;
-                                        break;
-                                    case 17:
-                                        $price += 1.52;
-                                        break;
-                                }
-                            }
-                        }
+                        // if(array_key_exists('AdventureSportsRider', $form)) {
+                        //     if($form['AdventureSportsRider'] == 'yes') {
+                        //         switch($img_product_id){
+                        //             case 16:
+                        //                 $price += 2.43;
+                        //                 break;
+                        //             case 17:
+                        //                 $price += 1.52;
+                        //                 break;
+                        //         }
+                        //     }
+                        // }
                     }
                     break;
                 case 'travel_safe':

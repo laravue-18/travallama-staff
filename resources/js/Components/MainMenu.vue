@@ -61,6 +61,18 @@ function isUrl(...urls) {
         </div>
       </Link>
     </div>
+    <div class="mb-4">
+      <Link class="group flex items-center py-3" href="/quotes/create">
+        <icon
+          name="users"
+          class="mr-2 w-4 h-4"
+          :class="isUrl('quotes/create') ? 'fill-white' : 'fill-indigo-400 group-hover:fill-white'"
+        />
+        <div :class="isUrl('quotes/create') ? 'text-white' : 'text-indigo-300 group-hover:text-white'">
+          New Quote
+        </div>
+      </Link>
+    </div>
     
     <div class="mb-4">
       <Link class="group flex items-center py-3" href="/leads">
