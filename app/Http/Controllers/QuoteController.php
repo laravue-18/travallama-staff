@@ -143,13 +143,16 @@ class QuoteController extends Controller
     }
 
     public function store(Request $request){
-        $request = Quote::find($request['quote_id'])->attributesToArray();
-        $request['travelers'] = json_decode($request['travelers']);
-        $products = Product::where([
-            'status' => true,
-        ])->get();
+        if($request->input('quote_id')){
+            $form = Quote::find($request['quote_id'])->attributesToArray();
+            $form['travelers'] = json_decode($form['travelers'], true);
+        } else {
+            $form = $request->all();
+        }
+
+        $products = Product::where('status', true)->get();
         
-        $products = $products->filter(function ($product) use($request){
+        $products = $products->filter(function ($product) use($form){
             $detail = $product->detail;
             if(!$product->provider->status) return false;
             switch($product->provider->slug){
@@ -157,31 +160,31 @@ class QuoteController extends Controller
                     $states = json_decode($detail->states);
                     if($detail->type == 'trip'){
                         if($detail->states_flag){
-                            return in_array($request['state'], $states);
+                            return in_array($form['state'], $states);
                         }else{
-                            return !in_array($request['state'], $states);
+                            return !in_array($form['state'], $states);
                         }
                     }else{
                         if($product->country_type == 'inbound'){
-                            return $request['destination'][0] == 'US';
+                            return $form['destination'][0] == 'US';
                         }else{
-                            return $request['destination'][0] != 'US';
+                            return $form['destination'][0] != 'US';
                         }
                     }
                     break;
                 case 'trawick':
                     if($product['type'] == 'basic'){
-                        if($detail['country_type'] == 'inbound' && $request['destination'][0] == 'US' && $request['country'] != 'US') 
+                        if($detail['country_type'] == 'inbound' && $form['destination'][0] == 'US' && $form['country'] != 'US') 
                             return true;
-                        else if($detail['country_type'] == 'international' && $request['destination'][0] != 'US' && ($request['country'] != 'US') && ($request['country'] != $request['destination']))
+                        else if($detail['country_type'] == 'international' && $form['destination'][0] != 'US' && ($form['country'] != 'US') && ($form['country'] != $form['destination']))
                                 return true;
-                        else if($detail['country_type'] == 'outbound' && $request['country'] == 'US' && $request['country'] != $request['destination'])
+                        else if($detail['country_type'] == 'outbound' && $form['country'] == 'US' && $form['country'] != $form['destination'])
                             return true;
                         else
                             return false;
-                    }else if($detail['type'] == 'trip' && $request['country'] == 'US'){
+                    }else if($detail['type'] == 'trip' && $form['country'] == 'US'){
                         return true;
-                    }else if($detail['type'] == 'vacation_rental' && $request['country'] == 'US'){
+                    }else if($detail['type'] == 'vacation_rental' && $form['country'] == 'US'){
                         return true;
                     }else{
                         return false;
@@ -189,7 +192,7 @@ class QuoteController extends Controller
 
                     break;
                 case 'travel_insured':
-                    if($request['country'] == 'US') return true;
+                    if($form['country'] == 'US') return true;
                     return false;
                     break;
                 case 'geo_blue':
@@ -206,84 +209,14 @@ class QuoteController extends Controller
             }
         });
 
-        $products = $products->map(function ($product) use($request){
-            $product['price'] = $this->calPrice($product, $request);
+        $products = $products->map(function ($product) use($form){
+            $product['price'] = $this->calPrice($product, $form);
             return $product;
         });
 
         return response()->json($products);
     }
     
-    public function test(Request $request){
-        $products = Product::where([
-            'status' => true,
-        ])->get();
-        
-        $products = $products->filter(function ($product) use($request){
-            $detail = $product->detail;
-            if(!$product->provider->status) return false;
-            switch($product->provider->slug){
-                case 'img':
-                    $states = json_decode($detail->states);
-                    if($detail->type == 'trip'){
-                        if($detail->states_flag){
-                            return in_array($request['state'], $states);
-                        }else{
-                            return !in_array($request['state'], $states);
-                        }
-                    }else{
-                        if($product->country_type == 'inbound'){
-                            return $request['destination'][0] == 'US';
-                        }else{
-                            return $request['destination'][0] != 'US';
-                        }
-                    }
-                    break;
-                case 'trawick':
-                    if($product['type'] == 'basic'){
-                        if($detail['country_type'] == 'inbound' && $request['destination'][0] == 'US' && $request['country'] != 'US') 
-                            return true;
-                        else if($detail['country_type'] == 'international' && $request['destination'][0] != 'US' && ($request['country'] != 'US') && ($request['country'] != $request['destination']))
-                                return true;
-                        else if($detail['country_type'] == 'outbound' && $request['country'] == 'US' && $request['country'] != $request['destination'])
-                            return true;
-                        else
-                            return false;
-                    }else if($detail['type'] == 'trip' && $request['country'] == 'US'){
-                        return true;
-                    }else if($detail['type'] == 'vacation_rental' && $request['country'] == 'US'){
-                        return true;
-                    }else{
-                        return false;
-                    }
-
-                    break;
-                case 'travel_insured':
-                    if($request['country'] == 'US') return true;
-                    return false;
-                    break;
-                case 'geo_blue':
-                    return true;
-                    break;
-                case 'travel_safe':
-                    return true;
-                    break;
-                case 'go_ready':
-                    return true;
-                    break;
-                default:
-                    return true;
-            }
-        });
-
-        $products = $products->map(function ($product) use($request){
-            $product['price'] = $this->calPrice($product, $request);
-            return $product;
-        });
-
-        return response()->json($products);
-    }
-
     public function calPrice($product, $form) {
         $travelers = $form['travelers'];
         $count = count($travelers);

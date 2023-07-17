@@ -47,7 +47,7 @@ watchEffect(() => {
 });
 
 const submit = (e) => {
-  axios.post(route('quotes.test'), {...form})
+  axios.post(route('quotes.store'), {...form})
     .then(res => res.data)
     .then(data => {
         products.value.products = Object.values(data)
