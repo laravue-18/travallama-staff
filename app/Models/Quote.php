@@ -9,6 +9,7 @@ class Quote extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
     protected $with = ['order', 'product1', 'product2', 'product3'];
 
     public function order() {

@@ -5,148 +5,144 @@
         <h1 class="mb-8 text-3xl font-bold">Quotes</h1>
 
         <!-- Quick Stats -->
-        <Disclosure v-slot="{open}">
-            <DisclosureButton class="flex w-full justify-between rounded bg-white px-4 py-2 border">
-                <span>Quick Stats</span>
-                <ChevronUpIcon
-                    :class="open ? 'rotate-180 transform' : ''"
-                    class="h-5 w-5 text-purple-500"
-                />
-            </DisclosureButton>
-            <DisclosurePanel>
-                <div class="grid grid-cols-3 lg:grid-cols-7 gap-12 py-4">
-                    <!-- Total Quotes -->
-                    <div class="col-span-3 p-2">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Total Visits </th>
-                                    <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Total Quotes </th>
-                                    <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Coversion Rate </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="py-2 border-b text-gray-500">Month To Date</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.month_to_date }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.month_to_date }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">
-                                        {{ stats.total_visits.month_to_date ? (stats.total_quotes.month_to_date / stats.total_visits.month_to_date * 100).toFixed(2) : 0}} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 border-b text-gray-500">Last Month</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_month }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_month }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">
-                                        {{ stats.total_visits.last_month ? (stats.total_quotes.last_month / stats.total_visits.last_month * 100).toFixed(2) : 0}} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 border-b text-gray-500">Last 30 Days</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_30_days }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_30_days }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">
-                                        {{ stats.total_visits.last_30_days ? (stats.total_quotes.last_30_days / stats.total_visits.last_30_days * 100).toFixed(2) : 0}} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 border-b text-gray-500">Week To Day</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.week_to_day }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.week_to_day }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">
-                                        {{ stats.total_visits.week_to_day ? (stats.total_quotes.week_to_day / stats.total_visits.week_to_day * 100).toFixed(2) : 0}} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 border-b text-gray-500">Last 7 Days</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_7_days }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_7_days }}</td>
-                                    <td class="py-2 border-b text-green-500 text-center">
-                                        {{ stats.total_visits.last_7_days ? (stats.total_quotes.last_7_days / stats.total_visits.last_7_days * 100).toFixed(2) : 0}} %
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Success Rate -->
-                    <div class="p-2">
-                        <h1 class="text-indigo-400 text-lg mb-2"> Success Rate </h1>
-                        <div class="divide-y">
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Exit </span>
-                                <span class="text-green-500"> 
-                                    {{stats.success_rate.exit}} | {{ (stats.success_rate.exit / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} % 
-                                </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Lead </span>
-                                <span class="text-green-500"> 
-                                    {{stats.success_rate.lead}} | {{ (stats.success_rate.lead / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} % 
-                                </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Purchase </span>
-                                <span class="text-green-500"> 
-                                    {{stats.success_rate.purchase}} | {{ (stats.success_rate.purchase / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} %  
-                                </span>
-                            </p>
+        <Collapse class="mb-6">
+            <Panel>
+                Quick Stats
+                <template #content>
+                    <div class="grid grid-cols-3 lg:grid-cols-7 gap-12">
+                        <!-- Total Quotes -->
+                        <div class="col-span-3 p-2">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Total Visits </th>
+                                        <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Total Quotes </th>
+                                        <th class="text-indigo-400 font-normal text-lg px-2 pb-2"> Coversion Rate </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-2 border-b text-gray-500">Month To Date</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.month_to_date }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.month_to_date }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">
+                                            {{ stats.total_visits.month_to_date ? (stats.total_quotes.month_to_date / stats.total_visits.month_to_date * 100).toFixed(2) : 0}} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 border-b text-gray-500">Last Month</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_month }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_month }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">
+                                            {{ stats.total_visits.last_month ? (stats.total_quotes.last_month / stats.total_visits.last_month * 100).toFixed(2) : 0}} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 border-b text-gray-500">Last 30 Days</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_30_days }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_30_days }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">
+                                            {{ stats.total_visits.last_30_days ? (stats.total_quotes.last_30_days / stats.total_visits.last_30_days * 100).toFixed(2) : 0}} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 border-b text-gray-500">Week To Day</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.week_to_day }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.week_to_day }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">
+                                            {{ stats.total_visits.week_to_day ? (stats.total_quotes.week_to_day / stats.total_visits.week_to_day * 100).toFixed(2) : 0}} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 border-b text-gray-500">Last 7 Days</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_visits.last_7_days }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">{{ stats.total_quotes.last_7_days }}</td>
+                                        <td class="py-2 border-b text-green-500 text-center">
+                                            {{ stats.total_visits.last_7_days ? (stats.total_quotes.last_7_days / stats.total_visits.last_7_days * 100).toFixed(2) : 0}} %
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Success Rate -->
+                        <div class="p-2">
+                            <h1 class="text-indigo-400 text-lg mb-2"> Success Rate </h1>
+                            <div class="divide-y">
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Exit </span>
+                                    <span class="text-green-500"> 
+                                        {{stats.success_rate.exit}} | {{ (stats.success_rate.exit / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} % 
+                                    </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Lead </span>
+                                    <span class="text-green-500"> 
+                                        {{stats.success_rate.lead}} | {{ (stats.success_rate.lead / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} % 
+                                    </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Purchase </span>
+                                    <span class="text-green-500"> 
+                                        {{stats.success_rate.purchase}} | {{ (stats.success_rate.purchase / (stats.success_rate.exit + stats.success_rate.lead + stats.success_rate.purchase) * 100).toFixed(2) }} %  
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Repeat -->
+                        <div class="p-2">
+                            <h1 class="text-indigo-400 text-lg mb-2"> Repeat </h1>
+                            <div class="divide-y">
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Lead </span>
+                                    <span class="text-green-500"> {{ stats.repeat.lead }} </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Customer </span>
+                                    <span class="text-green-500"> {{ stats.repeat.customer}} </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Coverage Type -->
+                        <div class="p-2">
+                            <h1 class="text-indigo-400 text-lg mb-2"> Coverage Type </h1>
+                            <div class="divide-y">
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Medical </span>
+                                    <span class="text-green-500"> {{stats.coverage_type.medical}} % </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Comprehensive </span>
+                                    <span class="text-green-500"> {{stats.coverage_type.comprehensive}} % </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Q Type -->
+                        <div class="p-2">
+                            <h1 class="text-indigo-400 text-lg mb-2"> Q-Type </h1>
+                            <div class="divide-y">
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Individual </span>
+                                    <span class="text-green-500"> {{stats.q_type.individual}}% </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Family </span>
+                                    <span class="text-green-500"> {{stats.q_type.family}}% </span>
+                                </p>
+                                <p class="flex justify-between py-2">
+                                    <span class="text-gray-500"> Multi Family </span>
+                                    <span class="text-green-500"> {{stats.q_type.multi_family}}% </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <!-- Repeat -->
-                    <div class="p-2">
-                        <h1 class="text-indigo-400 text-lg mb-2"> Repeat </h1>
-                        <div class="divide-y">
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Lead </span>
-                                <span class="text-green-500"> {{ stats.repeat.lead }} </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Customer </span>
-                                <span class="text-green-500"> {{ stats.repeat.customer}} </span>
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Coverage Type -->
-                    <div class="p-2">
-                        <h1 class="text-indigo-400 text-lg mb-2"> Coverage Type </h1>
-                        <div class="divide-y">
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Medical </span>
-                                <span class="text-green-500"> {{stats.coverage_type.medical}} % </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Comprehensive </span>
-                                <span class="text-green-500"> {{stats.coverage_type.comprehensive}} % </span>
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Q Type -->
-                    <div class="p-2">
-                        <h1 class="text-indigo-400 text-lg mb-2"> Q-Type </h1>
-                        <div class="divide-y">
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Individual </span>
-                                <span class="text-green-500"> {{stats.q_type.individual}}% </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Family </span>
-                                <span class="text-green-500"> {{stats.q_type.family}}% </span>
-                            </p>
-                            <p class="flex justify-between py-2">
-                                <span class="text-gray-500"> Multi Family </span>
-                                <span class="text-green-500"> {{stats.q_type.multi_family}}% </span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </DisclosurePanel>
-        </Disclosure>
+                </template>
+            </Panel>
+        </Collapse>
 
         <!-- Filter -->
-        <div class="bg-white rounded p-4 my-4">
-            <input type="text" v-model="form.search" placeholder="Search..." class="border border-gray-200 rounded px-4 py-2">
+        <div class="text-right mb-3">
+            <Input search type="text" v-model="form.search" placeholder="Search..." style="width: 200px"/>
         </div>
 
         <Vable :columns="columns" :data="rows.data" border
@@ -309,7 +305,7 @@ export default {
             {title: 'Success', slot: 'success', width: 200, resizable: true, sortable: 'custom'},
             {title: 'Exit Page', slot: 'exit_page', width: 200, resizable: true, sortable: 'custom'},
             {title: 'Status', slot: 'status', width: 200, resizable: true, sortable: 'custom'},
-            {title: 'View Details', slot: 'action', fixed: 'right', align: 'center', width: 200, resizable: true, sortable: 'custom'},
+            {title: 'View Details', slot: 'action', fixed: 'right', align: 'center', width: 140},
         ],
         form: {
             search: this.filters.search,

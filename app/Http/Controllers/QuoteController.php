@@ -464,6 +464,16 @@ class QuoteController extends Controller
         
         return Inertia::render('Quotes/Show', ['row' => $row]);
     }
+
+    public function updateQuotes(Request $request, $id){
+        $products = $request['selectedProducts'];
+        $quote = Quote::find($id);
+        $quote->update([
+            'product1_id' => $products[0],
+            'product2_id' => $products[1],
+            'product3_id' => $products[2]
+        ]);
+    }
     
     public function leadIndex(){
         return Inertia::render('Quotes/Leads', [

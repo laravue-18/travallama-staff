@@ -1,10 +1,15 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import {ref} from 'vue'
+import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
+import { router } from '@inertiajs/vue3'
 
 const props = defineProps({
     row: Object,
 });
+
+const selectedProducts = reactive(props.row.quote && props.row.quote.product1 ? 
+    [props.row.quote.product1.id, props.row.quote.product2.id, props.row.quote.product3.id]
+    : [])
 
 const productsModal = ref(false)
 
@@ -14,17 +19,14 @@ const viewAllProducts = () => {
         .then(res => res.data)
         .then(data => {
             products.value.products = Object.values(data)
-            console.log(products)
         })
 }
-
-const saveQuotes = ref(false)
 
 const products = ref({ products: [] })
 
 const columns = [
-    {title: 'Company Name', slot: 'company_name'},
-    {title: 'Product Name', key: 'name'},
+    {title: 'Company', slot: 'company_name'},
+    {title: 'Product', key: 'name'},
     {title: 'Score', slot: 'score'},
     {title: 'Price', key: 'price'},
     {title: 'Cancellation', slot: 'cancellation'},
@@ -33,8 +35,33 @@ const columns = [
     {title: 'CFAR', slot: 'cfar'},
     {title: 'Select', slot: 'select'},
     {title: 'Checkout', slot: 'checkout'},
-    {title: 'Checkout Link', slot: 'link'},
 ]
+
+const changeSelected = (rowId, val) => {
+    selectedProducts[val] = rowId
+}
+
+const changeQuote = () => {
+    router.post(route('quotes.update', props.row.quote.id), 
+        {selectedProducts}, 
+        {
+            onSuccess: () => {}
+        })
+}
+
+let instance
+onMounted(() => {
+    instance = getCurrentInstance();
+})
+
+const copyLink = (val) => {
+    navigator.clipboard.writeText(val)
+    instance.proxy.$Notice.success({
+        title: 'Link copied to clipboard',
+        desc: val
+    })
+}
+
 </script>
 
 <template>
@@ -43,132 +70,196 @@ const columns = [
     <AuthenticatedLayout>
         <h1 class="mb-8 text-3xl font-bold">Quotes</h1>
 
-        <div class="grid grid-cols-4 gap-4">
-            <div><span class="font-bold"> Quote ID : </span> {{ row.quote ? row.quote.id : ''}}</div>
-            <div><span class="font-bold"> Q-Type : </span> {{ row.quote ? row.quote.q_type : ''}}</div>
-            <div><span class="font-bold"> Status : </span> Active</div>
-            <div><span class="font-bold"> User Type : </span> {{ row.order ? 'Customer' : ( row.quote ? (row.quote.email ? 'Lead' : 'Visitor') : 'Visitor') }}</div>
-        </div>
-        
-        <div class="grid grid-cols-4 gap-4">
-            <div><span class="font-bold"> Email : </span> {{ row.quote ? row.quote.email : ''}}</div>
-            <div><span class="font-bold"> Phone : </span> {{ row.quote ? row.quote.phone : ''}}</div>
-        </div>
-        
-        <div class="grid grid-cols-4 gap-4">
-            <div><span class="font-bold"> First Name : </span> {{ row.order ? row.order.f_name : ''}}</div>
-            <div><span class="font-bold"> Last Name : </span> {{ row.order ? row.order.l_name : ''}}</div>
-            <div><span class="font-bold"> Age : </span> {{ row.order ? row.order.age : ''}}</div>
-            <div><span class="font-bold"> DOB : </span> {{ row.order ? row.order.birthday : ''}}</div>
-        </div>
+        <!-- Overview -->
+        <table class="bg-white border-collapse border border-slate-400 w-full">
+            <thead>
+                <tr>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Quote ID</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Q-Type</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">14/21</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Q-User</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Success</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Exit</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+                <tr>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.id : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.qtype : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">9/21</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Visitor</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Purchase</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Success</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Converted</td>
+                </tr>
+            </tbody>
+        </table>
 
-        <div class="divide-y">
-            <div class="my-4">
-                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 1</h1>
-                <div class="grid grid-cols-4 gap-4">
-                    <div><span class="font-bold"> Destination : </span> {{ row.quote ? row.quote.destination : ''}}</div>
-                    <div><span class="font-bold"> Leave Date : </span> {{ row.quote ? row.quote.from : ''}}</div>
-                    <div><span class="font-bold"> Return Date : </span> {{ row.quote ? row.quote.to : ''}}</div>
-                    <div><span class="font-bold"> Trip Duration : </span> 
+        <!-- Step1 -->
+        <h4 class="text-xl font-bold mt-4 mb-2">Step 1</h4>
+        <table class="bg-white border-collapse border border-slate-400 w-full">
+            <thead>
+                <tr>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Destination</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Leave Date</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Return Date</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Trip Duration</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+                <tr>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.destination : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.from : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.to : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">
                         {{ row.quote && row.quote.to && row.quote.from ? 
-                            Math.ceil((new Date(row.quote.to).getTime() - new Date(row.quote.from).getTime()) / (1000 * 3600 * 24)) : ''}}</div>
-                </div>
-            </div>
-            <div class="my-4">
-                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 2</h1>
-                <div class="grid grid-cols-4 gap-4">
-                    <div><span class="font-bold"> Residence : </span> {{ row.quote ? row.quote.country : ''}}</div>
-                    <div><span class="font-bold"> Citizenship : </span> {{ row.quote ? row.quote.citizenship : ''}}</div>
-                    <div><span class="font-bold"> Travelers : </span> {{ row.quote ? (row.quote.ages ? JSON.parse(row.quote.ages).length : '') : '' }}</div>
-                    <div><span class="font-bold"> Ages : </span> 
-                        {{ row.quote ? row.quote.ages : '' }}
-                    </div>
-                    <div><span class="font-bold"> Zipcode : </span> 
-                        {{ row.quote ? row.quote.zipcode : '' }}
-                    </div>
-                </div>
-            </div>
-            <div class="my-4">
-                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 3</h1>
-                <div class="grid grid-cols-4 gap-4">
-                    <div><span class="font-bold"> Coverage Type : </span> {{ row.quote ? row.quote.coverage_type : ''}}</div>
-                    <div><span class="font-bold"> CFAR : </span> {{ row.quote ? ['No', 'Yes'][row.quote.cfar] : ''}}</div>
-                    <div><span class="font-bold"> Trip Cost : </span> {{ row.quote ? row.quote.trip_cost : ''}}</div>
-                    <div><span class="font-bold"> First Payment : </span> {{ row.quote ? row.quote.first_payment : ''}}</div>
-                    <div><span class="font-bold"> Remaining Payments : </span> {{ row.quote ? ['No', 'Yes'][row.quote.remaining_payment] : ''}}</div>
-                </div>
-            </div>
-            <div class="my-4">
-                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Quote</h1>
-                <div class="grid grid-cols-4 gap-4">
-                    <div>{{ row.quote ? (row.quote.product1 ? row.quote.product1.name : '') : '' }}</div>
-                    <div>{{ row.quote ? (row.quote.product2 ? row.quote.product2.name : '') : '' }}</div>
-                    <div>{{ row.quote ? (row.quote.product3 ? row.quote.product3.name : '') : '' }}</div>
-                    <div>
-                        <button class="bg-indigo-500 text-white px-4 py-1 rounded-full" @click="viewAllProducts">View All Products</button>
-                    </div>
-                </div>
-            </div>
-            <div class="my-4">
-                <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Checkout</h1>
-                <div class="grid grid-cols-4 gap-4">
-                    
-                </div>
-            </div>
-        </div>
+                            Math.ceil((new Date(row.quote.to).getTime() - new Date(row.quote.from).getTime()) / (1000 * 3600 * 24)) : ''}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Step2 -->
+        <h4 class="text-xl font-bold mt-4 mb-2">Step 2</h4>
+        <table class="bg-white border-collapse border border-slate-400 w-full">
+            <thead>
+                <tr>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Residence</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Zipcode</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Citizenship</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Travelers</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Ages</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+                <tr>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.country : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.zipcode : '' }}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.citizenship : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? (row.quote.travelers ? JSON.parse(row.quote.travelers).length : '') : '' }}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">
+                        {{ row.quote ? (row.quote.travelers ? JSON.parse(row.quote.travelers).map(i => i.age) : '') : '' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Step3 -->
+        <h4 class="text-xl font-bold mt-4 mb-2">Step 3</h4>
+        <table class="bg-white border-collapse border border-slate-400 w-full">
+            <thead>
+                <tr>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Type</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">CFAR</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Trip Cost</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">First Payment</th>
+                    <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Remaing Payment</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+                <tr>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.coverage_type : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? ['No', 'Yes'][row.quote.cfar] : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.trip_cost : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? row.quote.first_payment : ''}}</td>
+                    <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote ? ['No', 'Yes'][row.quote.remaining_payment] : ''}}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Quote -->
+        <template v-if="row.quote && row.quote.product1">
+            <h4 class="text-xl font-bold mt-4 mb-2">Quote</h4>
+            <table class="bg-white border-collapse border border-slate-400 w-full">
+                <thead>
+                    <tr>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Economy</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Best Value</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Premium</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white"></th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800">
+                    <tr>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote && row.quote.product1 ? row.quote.product1.name : '' }}</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote && row.quote.product2 ? row.quote.product2.name : '' }}</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">{{ row.quote && row.quote.product3 ? row.quote.product3.name : '' }}</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">
+                            <button class="bg-indigo-500 text-white px-4 py-1 rounded-full" @click="viewAllProducts">View All Products</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+       
+        <!-- Checkout -->
+        <template v-if="row.order">
+            <h4 class="text-xl font-bold mt-4 mb-2">Checkout</h4>
+            <table class="bg-white border-collapse border border-slate-400 w-full">
+                <thead>
+                    <tr>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Base Premium</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Policy Upgrades</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Total Premium</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Policy Number</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Policy Link</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800">
+                    <tr>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">$200</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">$100</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">$300</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400"></td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+        
+        <!-- Travelers -->
+        <template v-if="row.order">
+            <h4 class="text-xl font-bold mt-4 mb-2">Travelers</h4>
+            <table class="bg-white border-collapse border border-slate-400 w-full">
+                <thead>
+                    <tr>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">First Name</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Last Name</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Age</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">Gender</th>
+                        <th class="border border-slate-400 p-1 pl-4 text-left bg-gray-500 text-white">DOB</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800">
+                    <tr>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Josh</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Bochner</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">43</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Male</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">12/28/1979</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Josh</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Bochner</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">43</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">Male</td>
+                        <td class="border border-slate-400 p-1 pl-4 text-slate-500 dark:text-slate-400">12/28/1979</td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+
         <Drawer
             title="All Products"
             v-model="productsModal"
             :closable="false"
-            :width="'80%'"
+            :width="'82%'"
         >
-            <Collapse class="mb-8">
-                <Panel>
-                    Quote Form
-                    <template #content>
-                        <div class="my-4">
-                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 1</h1>
-                            <div class="grid grid-cols-4 gap-4">
-                                <div><span class="font-bold"> Destination : </span> {{ row.quote ? row.quote.destination : ''}}</div>
-                                <div><span class="font-bold"> Leave Date : </span> {{ row.quote ? row.quote.from : ''}}</div>
-                                <div><span class="font-bold"> Return Date : </span> {{ row.quote ? row.quote.to : ''}}</div>
-                                <div><span class="font-bold"> Trip Duration : </span> 
-                                    {{ row.quote && row.quote.to && row.quote.from ? 
-                                        Math.ceil((new Date(row.quote.to).getTime() - new Date(row.quote.from).getTime()) / (1000 * 3600 * 24)) : ''}}</div>
-                            </div>
-                        </div>
-                        <div class="my-4">
-                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 2</h1>
-                            <div class="grid grid-cols-4 gap-4">
-                                <div><span class="font-bold"> Residence : </span> {{ row.quote ? row.quote.country : ''}}</div>
-                                <div><span class="font-bold"> Citizenship : </span> {{ row.quote ? row.quote.citizenship : ''}}</div>
-                                <div><span class="font-bold"> Travelers : </span> {{ row.quote ? (row.quote.ages ? JSON.parse(row.quote.ages).length : '') : '' }}</div>
-                                <div><span class="font-bold"> Ages : </span> 
-                                    {{ row.quote ? row.quote.ages : '' }}
-                                </div>
-                                <div><span class="font-bold"> Zipcode : </span> 
-                                    {{ row.quote ? row.quote.zipcode : '' }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="my-4">
-                            <h1 class="text-2xl text-indigo-500 mt-8 mb-4">Step 3</h1>
-                            <div class="grid grid-cols-4 gap-4">
-                                <div><span class="font-bold"> Coverage Type : </span> {{ row.quote ? row.quote.coverage_type : ''}}</div>
-                                <div><span class="font-bold"> CFAR : </span> {{ row.quote ? ['No', 'Yes'][row.quote.cfar] : ''}}</div>
-                                <div><span class="font-bold"> Trip Cost : </span> {{ row.quote ? row.quote.trip_cost : ''}}</div>
-                                <div><span class="font-bold"> First Payment : </span> {{ row.quote ? row.quote.first_payment : ''}}</div>
-                                <div><span class="font-bold"> Remaining Payments : </span> {{ row.quote ? ['No', 'Yes'][row.quote.remaining_payment] : ''}}</div>
-                            </div>
-                        </div>
-                        <div class="my-4 flex justify-between">
-                            <Checkbox v-model="saveQuotes">Save Quotes</Checkbox>
-                            <Button type="primary">Submit</Button>
-                        </div>
-                    </template>
-                </Panel>
-            </Collapse>
-            <Table :columns="columns" :data="products.products">
+            <div class="text-right mb-4">
+                <Button type="primary" @click="changeQuote">Save Change</Button>
+            </div>
+            <Table :columns="columns" :data="products.products" class="border table-auto">
                 <template #company_name="{row, index}">
                     {{ row.provider.name }}
                 </template>
@@ -184,17 +275,23 @@ const columns = [
                 <template #cfar="{row, index}">
                 </template>
                 <template #select="{row, index}">
-                    <Select>
-                        <Option value="1">Basic</Option>
-                        <Option value="2">Best</Option>
-                        <Option value="3">Premium</Option>
+                    <Select :model-value="selectedProducts.indexOf(row.id)" @on-change="i => changeSelected(row.id, i)">
+                        <Option :value="0">Economy</Option>
+                        <Option :value="1">Best Value</Option>
+                        <Option :value="2">Premium</Option>
                     </Select>
                 </template>
                 <template #checkout="{row, index}">
-                    <Button type="primary">Checkout</Button>
-                </template>
-                <template #link="{row, index}">
-                    <a :href="row.link" target="_blank">View</a>
+                    <button class="mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button @click="copyLink('//test.link')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M19.902 4.098a3.75 3.75 0 00-5.304 0l-4.5 4.5a3.75 3.75 0 001.035 6.037.75.75 0 01-.646 1.353 5.25 5.25 0 01-1.449-8.45l4.5-4.5a5.25 5.25 0 117.424 7.424l-1.757 1.757a.75.75 0 11-1.06-1.06l1.757-1.757a3.75 3.75 0 000-5.304zm-7.389 4.267a.75.75 0 011-.353 5.25 5.25 0 011.449 8.45l-4.5 4.5a5.25 5.25 0 11-7.424-7.424l1.757-1.757a.75.75 0 111.06 1.06l-1.757 1.757a3.75 3.75 0 105.304 5.304l4.5-4.5a3.75 3.75 0 00-1.035-6.037.75.75 0 01-.354-1z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </template>
             </Table>
         </Drawer>
