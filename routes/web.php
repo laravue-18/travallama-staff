@@ -33,6 +33,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('products', [ProductController::class, 'index'])->name('products');
+    Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::post('products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::post('providers/{provider}', [ProviderController::class, 'update'])->name('providers.update');
     

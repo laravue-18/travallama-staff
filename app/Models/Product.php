@@ -9,6 +9,8 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $with = ['cancellation', 'cfar', 'interruption', 'ifar'];
+
     public function provider()
     {
         return $this->belongsTo(Provider::class);
@@ -30,5 +32,21 @@ class Product extends Model
         } else {
             return $this->hasOne(TrawickProduct::class);
         }
+    }
+
+    public function cancellation(){
+        return $this->hasOne(Cancellation::class);
+    }
+
+    public function cfar(){
+        return $this->hasOne(Cfar::class);
+    }
+
+    public function interruption(){
+        return $this->hasOne(Interruption::class);
+    }
+
+    public function ifar(){
+        return $this->hasOne(Ifar::class);
     }
 }
