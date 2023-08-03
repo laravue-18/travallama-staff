@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $with = ['cancellation', 'cfar', 'interruption', 'ifar'];
+    protected $with = ['cancellation', 'cfar', 'interruption', 'ifar', 'trip_delays', 'missed_connection', 'medical', 'emergency_medical', 'preexisting_condition', 'adds', 'baggage_losses', 'baggage_delaies', 'cancellation_for_work_reason', 'equipment', 'disaster_evacuation', 'car_rental_damage', 'refund_policy'];
 
     public function provider()
     {
@@ -49,4 +49,54 @@ class Product extends Model
     public function ifar(){
         return $this->hasOne(Ifar::class);
     }
+
+    public function trip_delays(){
+        return $this->hasMany(TripDelay::class);
+    }
+
+    public function missed_connection(){
+        return $this->hasOne(MissedConnection::class);
+    }
+
+    public function medical() {
+        return $this->hasOne(Medical::class);
+    }
+    public function emergency_medical() {
+        return $this->hasOne(EmergencyMedical::class);
+    }
+    public function preexisting_condition() {
+        return $this->hasOne(PreexistingCondition::class);
+    }
+    public function adds() {
+        return $this->hasMany(Add::class);
+    }
+
+    public function baggage_losses() {
+        return $this->hasMany(BaggageLoss::class);
+    }
+
+    public function baggage_delaies() {
+        return $this->hasMany(BaggageDelay::class);
+    }
+
+    public function cancellation_for_work_reason() {
+        return $this->hasOne(CancellationForWorkReason::class);
+    }
+
+    public function equipment() {
+        return $this->hasOne(Equipment::class);
+    }
+
+    public function disaster_evacuation() {
+        return $this->hasOne(DisasterEvacuation::class);
+    }
+
+    public function car_rental_damage() {
+        return $this->hasOne(CarRentalDamage::class);
+    }
+
+    public function refund_policy() {
+        return $this->hasOne(RefundPolicy::class);
+    }
+    
 }
