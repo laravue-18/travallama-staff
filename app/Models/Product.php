@@ -9,7 +9,12 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $with = ['cancellation', 'cfar', 'interruption', 'ifar', 'trip_delays', 'missed_connection', 'medical', 'emergency_medical', 'preexisting_condition', 'adds', 'baggage_losses', 'baggage_delaies', 'cancellation_for_work_reason', 'equipment', 'disaster_evacuation', 'car_rental_damage', 'refund_policy'];
+    protected $with = ['cancellation', 'cfar', 'interruption', 'ifar', 'trip_delays', 'missed_connection', 
+        'medical', 'emergency_medical', 'preexisting_condition', 'adds', 
+        'baggage_losses', 'baggage_delaies', 'cancellation_for_work_reason', 
+        'equipment', 'disaster_evacuation', 'car_rental_damage', 'refund_policy', 
+        'policy_maxes', 'deductibles'
+    ];
 
     public function provider()
     {
@@ -32,6 +37,11 @@ class Product extends Model
         } else {
             return $this->hasOne(TrawickProduct::class);
         }
+    }
+
+    public function getProviderNameAttribute()
+    {
+        return $this->provider->name;
     }
 
     public function cancellation(){
@@ -97,6 +107,14 @@ class Product extends Model
 
     public function refund_policy() {
         return $this->hasOne(RefundPolicy::class);
+    }
+
+    public function policy_maxes() {
+        return $this->hasMany(PolicyMax::class);
+    }
+
+    public function deductibles() {
+        return $this->hasMany(Deductible::class);
     }
     
 }

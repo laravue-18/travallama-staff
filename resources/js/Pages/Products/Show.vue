@@ -4,9 +4,198 @@ import { Head, Link, router } from '@inertiajs/vue3';
 
 const props = defineProps(['product']);
 
-const changeHandler = (e, id = null) => {
-    router.post('', { 
-        [e.target.name]: e.target.value,
+const benefits = {
+    'comprehensive': [
+        {
+            'title': 'TRIP PROTECTION',
+            'rows': [
+                {
+                    'name': 'Cancellation',
+                    'slug': 'cancellation',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Cancel For Any Reason (CFAR)',
+                    'slug': 'cfar',
+                    'optional': true,
+                    'icon': true,
+                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Additional Info', 'slug': 'additional_info'}]
+                },
+                {
+                    'name': 'Interruption',
+                    'slug': 'interruption',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Interrupt For Any Reason (IFAR)',
+                    'slug': 'ifar',
+                    'optional': true,
+                    'icon': true
+                },
+                {
+                    'name': 'Trip Delay',
+                    'slug': 'trip_delays',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Missed Connection',
+                    'slug': 'missed_connection',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+            ]
+        },
+        {
+            'title': 'HEALTH & ACCIDENT',
+            'rows': [
+                {
+                    'name': 'Medical',
+                    'slug': 'medical',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Emergency Medical Evacuation',
+                    'slug': 'emergency_medical',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Preexisting conditions waiver',
+                    'slug': 'preexisting_condition',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Accidental Death & Dismemberment (AD&D)',
+                    'slug': 'adds',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                
+            ]
+        },
+        {
+            'title': 'PROPERTY COVERAGE',
+            'rows': [
+                {
+                    'name': 'Baggage Loss',
+                    'slug': 'baggage_losses',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                },
+                {
+                    'name': 'Baggage Delay',
+                    'slug': 'baggage_delaies',
+                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                }
+            ]
+        },
+        {
+            'title': 'OTHER IMPORTANT COVERAGES',
+            'rows': [
+                {
+                    'name': 'Cancellation for Work Reasons',
+                    'slug': 'cancellation_for_work_reason'
+                },
+                {
+                    'name': 'Electronic/Professional Equipment',
+                    'slug': 'equipment'
+                },
+                {
+                    'name': 'Poltical, Security, Natural Disaster Evacuation',
+                    'slug': 'disaster_evacuation'
+                },
+                {
+                    'name': 'Car Rental Damage',
+                    'slug': 'car_rental_damage'
+                }
+            ]
+        },
+        {
+            'title': 'REFUND POLICY',
+            'rows': [
+                {
+                    'name': 'REFUND POLICY',
+                    'slug': 'refun_policy'
+                }
+            ]
+        },
+        {
+            'title': 'OPTIONAL BENEFITS',
+            'optional': true,
+            'rows': [
+                {
+                    'name': 'Baggage Delay',
+                    'slug': 'baggage_delaies'
+                },
+                {
+                    'name': 'Trip Delay Upgrade',
+                    'slug': 'trip_delays'
+                },
+                {
+                    'name': '24-Hour AD&D',
+                    'slug': 'adds'
+                },
+                {
+                    'name': 'Rental Car Damage',
+                    'slug': 'car_rental_damage'
+                }
+            ]
+        }
+    ],
+    'basic': [
+        {
+            'title': 'MEDICAL COVERAGE',
+            'rows': [
+                {
+                    'name': 'Medical Limits',
+                    'slug': 'policy_maxes',
+                    'type': 'dropdown'
+                },
+                {
+                    'name': 'Primary/Secondary',
+                    'slug': 'emergency_medical',
+                },
+                {
+                    'name': 'Deductible options',
+                    'slug': 'deductibles',
+                    'type': 'price'
+                },
+                {
+                    'name': 'Preexisting Conditions Look-back period',
+                    'slug': 'adds',
+                },
+                {
+                    'name': 'Acute onset of preexisting condition',
+                    'slug': 'adds',
+                },
+                {
+                    'name': 'Prescription Benefit',
+                    'slug': 'adds',
+                }
+            ]
+        },
+        {
+            'title': 'OPTIONAL BENEFITS',
+            'optional': true,
+            'rows': [
+                {
+                    'name': 'Trip Delay Upgrade',
+                    'slug': 'trip_delays'
+                },
+                {
+                    'name': '24-Hour AD&D',
+                    'slug': 'adds'
+                }
+            ]
+        }
+    ]
+}
+
+const changeHandler = (e, relationship, field, id = null, checkbox = false) => {
+    let value = e.target.value
+    if(e.target.placeholder == 'Price') value = value.replace(/\$\s?|(,*)/g, '') 
+    if(checkbox) value = e.target.checked
+
+    router.post('', {
+        relationship,
+        field,
+        value,
         id
     }, {
         preserveScroll: true,
@@ -296,7 +485,86 @@ const changeHandler = (e, id = null) => {
                 </tbody>
             </table>
         </template>
-        <template v-else>
+
+        <template v-for="(benefit, i) in benefits[product.type]" :key="i">
+            <h4 class="mt-8 mb-4 text-xl font-extrabold">{{ benefit.title }}</h4>
+            <table class="w-full bordered">
+                <tbody>
+                    <tr v-for="(row, j) in benefit.rows" :key="j">
+                        <td class="font-bold border border-gray-400 p-4 w-96">{{ row.name }}</td>
+                        <td class="border border-gray-400 p-4">
+                            <template v-if="Array.isArray(product[row.slug])">
+                                <div v-for="item in product[row.slug]" class="flex items-center gap-4 mb-2">
+                                    <template v-if="row.type == 'dropdown'">
+                                        <label for="">Price:</label>
+                                        <InputNumber
+                                            :model-value="item.value"
+                                            @change="e => changeHandler(e, row.slug, 'value', item.id)"
+                                            placeholder="Price"
+                                            :formatter="value => `$${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" 
+                                            style="width: 120px;"
+                                            required
+                                        />
+                                        <label for="">Min Age:</label>
+                                        <InputNumber
+                                            :model-value="item.min_age"
+                                            @change="e => changeHandler(e, row.slug, 'min_age', item.id)"
+                                            placeholder="Min Age"
+                                            style="width: 120px;"
+                                        />
+                                        <label for="">Max Age:</label>
+                                        <InputNumber
+                                            :model-value="item.max_age"
+                                            :name="`${row.slug}_max_age`" 
+                                            @change="e => changeHandler(e, row.slug, 'max_age', item.id)"
+                                            placeholder="Max Age"
+                                            style="width: 120px;"
+                                        />
+                                        <Checkbox 
+                                            :model-value="!!item.is_included"
+                                            @change="e => changeHandler(e, row.slug, 'is_included', item.id, true)"
+                                        >
+                                            Included
+                                        </Checkbox>
+                                        <Checkbox 
+                                            :model-value="!!item.is_recommended"
+                                            @change="e => changeHandler(e, row.slug, 'is_recommended', item.id, true)"
+                                        >
+                                            Recommended
+                                        </Checkbox>
+                                    </template>
+                                </div>
+                                <div class="flex items-center gap-4 border-t pt-2">
+                                    <label for="">Add New Item: </label>
+                                    <template v-if="row.type == 'dropdown'">
+                                        <InputNumber
+                                            :model-value="0"
+                                            @change="e => changeHandler(e, row.slug, 'value', 0)"
+                                            placeholder="Price"
+                                            :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" 
+                                            :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+                                            style="width: 120px;"
+                                        />
+                                    </template>
+                                    <template v-else>
+                                    </template>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="flex gap-4">
+                                    <div v-for="field in row.fields">
+                                        <label for="">{{ field.label }}:</label>
+                                        <Input
+                                            :model-value="product[row.slug] ? product[row.slug][field.slug] : ''"
+                                            @change="e => changeHandler(e, row.slug, field.slug)"
+                                        />
+                                    </div>
+                                </div>
+                            </template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </template>
     </AuthenticatedLayout>
 </template>
