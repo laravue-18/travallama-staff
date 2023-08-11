@@ -13,7 +13,7 @@ class Product extends Model
         'medical', 'emergency_medical', 'preexisting_condition', 'adds', 
         'baggage_losses', 'baggage_delaies', 'cancellation_for_work_reason', 
         'equipment', 'disaster_evacuation', 'car_rental_damage', 'refund_policy', 
-        'policy_maxes', 'deductibles'
+        'policy_maxes', 'deductibles', 'primary', 'preexisting_conditions_look_back_period', 'acute_onset_of_preexisting_condition', 'prescription_benefit'
     ];
 
     public function provider()
@@ -116,5 +116,20 @@ class Product extends Model
     public function deductibles() {
         return $this->hasMany(Deductible::class);
     }
+
+    public function primary() {
+        return $this->hasOne(Primary::class);
+    }
+
+    public function preexisting_conditions_look_back_period() {
+        return $this->hasOne(PreexistingConditionsLookBackPeriod::class);
+    }
     
+    public function acute_onset_of_preexisting_condition() {
+        return $this->hasOne(AcuteOnsetOfPreexistingCondition::class);
+    }
+
+    public function prescription_benefit() {
+        return $this->hasOne(PrescriptionBenefit::class);
+    }
 }
