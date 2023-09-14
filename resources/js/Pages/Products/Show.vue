@@ -19,7 +19,7 @@ const benefits = {
                     'slug': 'cfar',
                     'optional': true,
                     'icon': true,
-                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Additional Info', 'slug': 'additional_info'}]
+                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Eligible Days', 'slug': 'eligible_days'}, {'label': 'Additional Info', 'slug': 'additional_info'}]
                 },
                 {
                     'name': 'Interruption',
@@ -29,7 +29,7 @@ const benefits = {
                 {
                     'name': 'Interrupt For Any Reason (IFAR)',
                     'slug': 'ifar',
-                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Additional Info', 'slug': 'additional_info'}],
+                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Eligible Days', 'slug': 'eligible_days'}, {'label': 'Additional Info', 'slug': 'additional_info'}],
                     'optional': true,
                     'icon': true
                 },
@@ -61,7 +61,7 @@ const benefits = {
                 {
                     'name': 'Preexisting conditions waiver',
                     'slug': 'preexisting_condition',
-                    'fields': [{'label': 'Label', 'slug': 'label'}]
+                    'fields': [{'label': 'Label', 'slug': 'label'}, {'label': 'Eligible Days', 'slug': 'eligible_days'}]
                 },
                 {
                     'name': 'Accidental Death & Dismemberment (AD&D)',
